@@ -1,0 +1,20 @@
+$background-sqlshare: #316b92;
+
+header{
+  background: $background-sqlshare;
+  height: 40px;
+  color: black;
+  font-family: sans-serif;
+  width: 100%;
+  border-bottom: 1px solid #333;
+
+  .logo{
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    img{ padding-right: 10px; }
+  }
+  nav{
+    padding: 0 auto;
+  }
+}

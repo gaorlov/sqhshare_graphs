@@ -10,4 +10,14 @@
  *
  *= require_self
  *= require_tree .
+ *= require bootstrap_and_overrides
  */
+@import "header";
+
+body .container:first-child{
+  margin-top: 50px;
+}
+
+.full-width{
+  width: 100%;
+}

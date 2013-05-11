@@ -1,0 +1,3 @@
+class SqlShareApiInterfacesController < ApplicationController
+
+end
