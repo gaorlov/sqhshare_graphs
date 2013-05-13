@@ -12,12 +12,18 @@
  *= require_tree .
  *= require bootstrap_and_overrides
  */
+@import "compass/css3/transform";
+@import "compass/css3/transition";
 @import "header";
-
-body .container:first-child{
-  margin-top: 50px;
-}
 
 .full-width{
   width: 100%;
+}
+.logo{
+  color: black;
+  margin-top: 17px;
+  img{ padding-right: 10px; }
+}
+.spinner{
+  height: 30px;
 }

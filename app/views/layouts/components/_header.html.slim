@@ -1,6 +1,12 @@
 header
-  .logo
-    =image_tag "ss-logo.png"
-    | Graphs
-  nav.content
+  nav.container
+    .row
+      .span12
+        .row
+          =primary_link_to "API Key", sessions_path
+          =primary_link_to "Data Sets", graphs_path
+          =primary_link_to "Run Queries", new_graph_path
 
+          h5.muted.span4
+            ' Key:
+            span.js-api-key= @api_key 

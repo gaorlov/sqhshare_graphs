@@ -1,65 +1,16 @@
 .row
-  .span12
-    h2 Credentials
-  .span12.js-message-field#success
-    h4.js-text.text-success
-  .span12.js-message-field#failure
-    h4.js-text.text-error
-.row.js-new-credentials[style="#{@api_key ? 'display:none' : ''}"]
-  .span6
-    =form_for :key, :url => {:action => :store_api_key}, :remote => true, :html => {:id => "new-api-key"} do |f|
-      =f.label :api_key do 
-        h4 API key
-      =f.text_field :api_key, :class => "js-api-key full-width", :placeholder=>"#{@api_key ? @api_key : 'Enter your API key'}"
-      .help-block
-        ' You can get your API key from
-        =link_to 'here', '//sqlshare.escience.washington.edu/sqlshare/#s=credentials'
-        .muted 
-          | We don't store it on a server; it's in the session, so no need to worry about it being stolen.
-          | Don't believe me? Here's the code: 
-          =link_to 'sqhshare_graphs', '//github.com/gaorlov/sqhshare_graphs', :target => "_blank"
-      =f.submit 'Save API Key', :class => 'btn btn-primary'
-
-.row.js-saved-credentials[class="#{@api_key ? '' : 'display:none'}"]
-  .span12
-    h4 
-      ' You have a saved API key:
-      span.muted.js-api-key=@api_key
-    =link_to 'Update/change it', '#!', :class => 'js-update-api btn btn-warning'
-    .muted Note: this will erase your previous key
-
-.row
-  .span12
-    h2 Query
-  .span8
-    label Enter your query
-    textarea.full-width.js-query-area
+  .span8.js-dataset-list
+    .text-center.js-remove-on-load
+      =spinner
 
 
 coffee:
-  $ -> 
-    $('.js-update-api').click -> 
-      $('.js-saved-credentials').slideUp(->
-        $('.js-new-credentials').slideDown()
-      )
-      
-
-    $('body').on("ajax:success", '#new-api-key', (status, data, xhr)->
-      $('.js-message-field .js-text').html("")
-      if data.status == 'failure'
-        $('.js-message-field#failure .js-text').html(data.error);
-      else
-        $('.js-message-field#success .js-text').html("Key is successfully updated to " + data.value.api_key);
-
-        $('.js-new-credentials').slideUp( ->
-          $('.js-saved-credentials').slideDown()
-          $('.js-saved-credentials .js-api-key').html(data.value.api_key)
-        )
-      setTimeout( ->
-        $('.js-message-field .js-text').fadeOut( ->
-          $(this).html("")
-          $(this).show()
-        )
-      , 2000
-      )
-    )
+  $ ->
+    $.ajax
+      url: '/sql_share/dataset_list'
+      success: (data, status, xhr)->
+        console.log data
+        if data.status == "success"
+          $('.js-remove-on-load').remove()
+          $('.js-dataset-list').html(data.value)
+    return

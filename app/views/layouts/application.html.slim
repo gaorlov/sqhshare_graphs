@@ -8,4 +8,12 @@ html
   body
     =render '/layouts/components/header'
     .container
+      .row
+        .span8
+          h2= @title
+        .span4
+          .logo
+            =image_tag "ss-wayf-logo.png", :class => 'span2'
+            h5 Graphs
+
       = yield

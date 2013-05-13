@@ -9,6 +9,7 @@ gem 'jquery-rails'
 gem 'slim', '~> 1.3.8'
 gem 'compass'
 gem 'd3_rails'
+gem 'nokogiri'
 
 # Gems used only for assets and not required
 # in production environments by default.

@@ -1,20 +1,38 @@
+@import "compass/css3/transform";
+@import "compass/css3/transition";
 $background-sqlshare: #316b92;
+$background-sqlshare-hover:  #4888B2;
+$background-sqlshare-active: #3777A1;
+$header-height: 40px;
 
 header{
   background: $background-sqlshare;
-  height: 40px;
-  color: black;
-  font-family: sans-serif;
   width: 100%;
-  border-bottom: 1px solid #333;
 
-  .logo{
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    img{ padding-right: 10px; }
-  }
   nav{
     padding: 0 auto;
+    .primary-link{
+      height: 100%;
+      margin-top: 0;
+      margin-bottom: 0;
+      line-height: $header-height;
+      float: left;
+      padding: 0 30px;
+      @include transition (all 0.3s ease);
+      a{
+        color: #eaeaea;
+        &:hover{
+          text-decoration: none;
+        }
+      }
+      &.active{
+        background: $background-sqlshare-active;
+      }
+      &:hover{
+        background: $background-sqlshare-hover;
+        a{color: white;}
+      }
+      &:first-child{margin-left: 30px;}
+    }
   }
 }
