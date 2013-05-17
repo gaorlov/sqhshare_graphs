@@ -15,6 +15,7 @@ SqlshareGraphs::Application.routes.draw do
       get 'dataset_list'
       get 'data_from_sql'
       get 'get_process_data'
+      get 'dataset'
     end
   end
 

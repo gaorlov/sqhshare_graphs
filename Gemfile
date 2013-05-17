@@ -8,7 +8,7 @@ gem 'rails'
 gem 'jquery-rails'
 gem 'slim', '~> 1.3.8'
 gem 'compass'
-gem 'd3_rails'
+gem "nvd3-rails", :git => "git@github.com:adeven/nvd3-rails.git", :submodules => true
 gem 'nokogiri'
 
 # Gems used only for assets and not required

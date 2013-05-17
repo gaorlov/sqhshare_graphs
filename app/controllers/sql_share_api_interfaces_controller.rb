@@ -12,26 +12,20 @@ class SqlShareApiInterfacesController < ApplicationController
   end
 
   def data_from_sql
-    data_from_sql_v1 params
-  end
-
-  def data_from_sql_v1 params
     url = SQLV1 + URI.escape(params[:sql]) + "&maxrows=#{params[:maxrows] || 250}"
     render :json => {:status => 'success', :value => http_get(url, true) }
-  end
-
-
-  def data_from_sql_v2 params
-    url = SQLV1
-    fields = { "sql" => params[:sql] }
-    fields["max_records"] = params[:maxrows] || 250
-    fields["authorization"] = @api_key if @api_key
-    render :json => {:status => 'success', :value => http_post(url, fields) }
   end
 
   def get_process_data
     url = params[:url]
     render :json => {:status => 'success', :value => http_get(url) }
+  end
+
+  def dataset
+    render :status => 404 if !params[:url]
+    set = http_get(URI.escape(params[:url], "&maxrows=#{params[:maxrows] || 250}"))
+    @set = JSON.parse(set)
+    @title = "dataset \"#{@set['name']}\""
   end
 
 private

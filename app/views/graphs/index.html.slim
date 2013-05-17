@@ -1,16 +1,24 @@
 .row
-  .span8.js-dataset-list
+  .span12.js-dataset-list
     .text-center.js-remove-on-load
       =spinner
 
 
 coffee:
-  $ ->
+  $(document).ready ->
     $.ajax
       url: '/sql_share/dataset_list'
       success: (data, status, xhr)->
-        console.log data
         if data.status == "success"
           $('.js-remove-on-load').remove()
-          $('.js-dataset-list').html(data.value)
+          jsonData = $.parseJSON data.value
+          console.log jsonData
+          $.each(jsonData, (i, val)-> 
+            $html = $('<div class="row">')
+            $html.append($("<div class=\"span4\">#{val.name}</div>
+                            <a href=\"/sql_share/dataset?url=#{val.url}\" class=\"span4\">#{val.qualified_name}</a>
+                            <div class=\"muted span4\">#{val.owner}</div>"))
+
+            $('.js-dataset-list').append($html) 
+          )
     return
