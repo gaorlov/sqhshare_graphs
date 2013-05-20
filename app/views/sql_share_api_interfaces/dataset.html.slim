@@ -3,32 +3,79 @@
     h4 stats
   .span2 rows
   .span10= @set["rows_total"]
-  .span2 rows displayed
-  .span10= @set["sample_data"].count
+  .span2 sql
+  .span10
+    pre.prettyprint= @sql
 
 .row
-  h4.span12=@set["columns"]
+  .span12
+    h4 
+      | Y axes
+      span.muted.text-tiny  (select as many as you'd like to add to graph)
+  -@columns.each_with_index do |col_desc, i|
+    .span2
+      .checkbox
+        -disabled = ["System.String", "varchar"].include? col_desc["dbtype"]
+        -if disabled
+          input[type="checkbox" disabled]
+        -else
+          input.js-y-axis-checkbox[type="checkbox" data-y-index=col_desc["dbtype"]]
+        span[class="#{disabled ? 'muted' : ''}"]=truncate(col_desc["name"], :length => 15)
+        span.muted.text-tiny  (#{col_desc["dbtype"]})
+  .span12
+    .muted 
+      | NOTE: You may want to look at the 
+      =link_to "full data set", "#full-dataset"
+      |  at the bottom of the page to make sure that there are no missing points, as the graph may not render correctly otherwise
+  .span12
+    h4
+      | X axes
+      span.muted.text-tiny  (select one)
+  .span2
+    select.js-x-axis-select
+      option[selected data-x-index='index'] index
+      -@x_axes.each_with_index do |axis, i|
+        option= axis["name"]
 
 .row
-  -@set["sample_data"].each do |datum|
+  #chart
+    svg[style="height:500px"]
+
+#full-dataset
+  .row
     .span12
-      =datum
+      h4 
+        ' Full Data Set
+        =link_to "(show)", '#!', :class => 'js-toggle-dataset'
+        =link_to "(hide)", '#!', :class => 'js-toggle-dataset', :style => "display:none"
+  .row
+    .js-dataset style="display:none"
+      -@data.each do |col|
+        .span1
+          .row
+            h5.span1.text-center=col["key"]
+            -col["values"].each do |datum|
+              .text-center.span1="#{datum == "" ? '--' : datum}"
 
 javascript:
   $(document).ready(function(){
     nv.addGraph(function() {
       var chart = nv.models.lineWithFocusChart();
-     
-      .chart.xAxis
+
+      chart.xAxis
           .tickFormat(d3.format(',f'));
-     
+
       chart.yAxis
           .tickFormat(d3.format(',.2f'));
+
       chart.y2Axis
           .tickFormat(d3.format(',.2f'));
 
-       d3.select('#chart svg')
-          .datum(testData())
+
+      
+
+      d3.select('#chart svg')
+          .datum(data)
         .transition().duration(500)
           .call(chart);
 
@@ -37,18 +84,55 @@ javascript:
       return chart;
     });
 
-
-
-    /**************************************
-      * Simple test data generator
-     */
-     
-    function testData() {
-      return stream_layers(3,128,.1).map(function(data, i) {
-        return { 
+    thing = function() {
+      return stream_layers(3,10+Math.random()*200,.1).map(function(data, i) {
+        return {
           key: 'Stream' + i,
           values: data
-         };
+        };
       });
     }
+
+    /* Inspired by Lee Byron's test data generator. */
+    function stream_layers(n, m, o) {
+      if (arguments.length < 3) o = 0;
+      function bump(a) {
+        var x = 1 / (.1 + Math.random()),
+            y = 2 * Math.random() - .5,
+            z = 10 / (.1 + Math.random());
+        for (var i = 0; i < m; i++) {
+          var w = (i / m - y) * z;
+          a[i] += x * Math.exp(-w * w);
+        }
+      }
+      return d3.range(n).map(function() {
+          var a = [], i;
+          for (i = 0; i < m; i++) a[i] = o + o * Math.random();
+          for (i = 0; i < 5; i++) bump(a);
+          return a.map(stream_index);
+        });
+    }
+
+    /* Another layer generator using gamma distributions. */
+    function stream_waves(n, m) {
+      return d3.range(n).map(function(i) {
+        return d3.range(m).map(function(j) {
+            var x = 20 * j / m - i / 3;
+            return 2 * x * Math.exp(-.5 * x);
+          }).map(stream_index);
+        });
+    }
+
+    function stream_index(d, i) {
+      return {x: i, y: Math.max(0, d)};
+    }
+
+    console.log(thing())
+
   })
+
+coffee:
+  $ ->
+    $('.js-toggle-dataset').click ->
+      $('.js-toggle-dataset').toggle()
+      $('.js-dataset').slideToggle();

@@ -6,4 +6,8 @@ class GraphsController < ApplicationController
   def new
     @title = "Run Queries"
   end
+
+  def dataset
+
+  end
 end

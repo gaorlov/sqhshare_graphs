@@ -23,8 +23,15 @@ class SqlShareApiInterfacesController < ApplicationController
 
   def dataset
     render :status => 404 if !params[:url]
-    set = http_get(URI.escape(params[:url], "&maxrows=#{params[:maxrows] || 250}"))
+    set = http_get(URI.escape(params[:url]))
     @set = JSON.parse(set)
+    @columns = @set["columns"]
+    @sql = @set["sql_code"]
+    @x_axes = []
+    @columns.each_with_index do |col|
+      @x_axes << col unless ["System.String", "varchar"].include? col["dbtype"]
+    end
+    @data = parse_data @set["columns"], @set["sample_data"]
     @title = "dataset \"#{@set['name']}\""
   end
 
@@ -51,5 +58,20 @@ private
       req[key] = val
     }
     res = https.request(req)
+  end
+
+
+  def parse_data columns, data
+    parsed_data = []
+    columns.each_with_index do |col|
+      parsed_data << {"key" => col["name"], "values" => []}
+    end
+    # we assume the same order
+    data.each do |datum|
+      datum.each_with_index do |value, i|
+        parsed_data[i]["values"] << value
+      end
+    end
+    return parsed_data
   end
 end
