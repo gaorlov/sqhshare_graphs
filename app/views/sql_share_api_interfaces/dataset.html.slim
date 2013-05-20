@@ -19,7 +19,7 @@
         -if disabled
           input[type="checkbox" disabled]
         -else
-          input.js-y-axis-checkbox[type="checkbox" data-y-index=col_desc["dbtype"]]
+          input.js-y-axis-checkbox[type="checkbox" data-y-index=col_desc["name"]]
         span[class="#{disabled ? 'muted' : ''}"]=truncate(col_desc["name"], :length => 15)
         span.muted.text-tiny  (#{col_desc["dbtype"]})
   .span12
@@ -36,6 +36,8 @@
       option[selected data-x-index='index'] index
       -@x_axes.each_with_index do |axis, i|
         option= axis["name"]
+  .span12
+    =link_to 'Generate', '#!', :class => 'js-generate-graph btn btn-primary'
 
 .row
   #chart
@@ -58,81 +60,49 @@
               .text-center.span1="#{datum == "" ? '--' : datum}"
 
 javascript:
-  $(document).ready(function(){
-    nv.addGraph(function() {
-      var chart = nv.models.lineWithFocusChart();
-
-      chart.xAxis
-          .tickFormat(d3.format(',f'));
-
-      chart.yAxis
-          .tickFormat(d3.format(',.2f'));
-
-      chart.y2Axis
-          .tickFormat(d3.format(',.2f'));
-
-
-      
-
-      d3.select('#chart svg')
-          .datum(data)
-        .transition().duration(500)
-          .call(chart);
-
-      nv.utils.windowResize(chart.update);
-
-      return chart;
-    });
-
-    thing = function() {
-      return stream_layers(3,10+Math.random()*200,.1).map(function(data, i) {
-        return {
-          key: 'Stream' + i,
-          values: data
-        };
-      });
-    }
-
-    /* Inspired by Lee Byron's test data generator. */
-    function stream_layers(n, m, o) {
-      if (arguments.length < 3) o = 0;
-      function bump(a) {
-        var x = 1 / (.1 + Math.random()),
-            y = 2 * Math.random() - .5,
-            z = 10 / (.1 + Math.random());
-        for (var i = 0; i < m; i++) {
-          var w = (i / m - y) * z;
-          a[i] += x * Math.exp(-w * w);
-        }
-      }
-      return d3.range(n).map(function() {
-          var a = [], i;
-          for (i = 0; i < m; i++) a[i] = o + o * Math.random();
-          for (i = 0; i < 5; i++) bump(a);
-          return a.map(stream_index);
-        });
-    }
-
-    /* Another layer generator using gamma distributions. */
-    function stream_waves(n, m) {
-      return d3.range(n).map(function(i) {
-        return d3.range(m).map(function(j) {
-            var x = 20 * j / m - i / 3;
-            return 2 * x * Math.exp(-.5 * x);
-          }).map(stream_index);
-        });
-    }
-
-    function stream_index(d, i) {
-      return {x: i, y: Math.max(0, d)};
-    }
-
-    console.log(thing())
-
-  })
-
+  full_data = #{raw (@data.to_s.gsub("=>", ":").gsub("\"key\"", "key").gsub("\"values\"", "values"))}
 coffee:
   $ ->
+
     $('.js-toggle-dataset').click ->
       $('.js-toggle-dataset').toggle()
-      $('.js-dataset').slideToggle();
+      $('.js-dataset').slideToggle()
+
+    find_in_full_data = (field_name) ->
+      if field_name == "index"
+        return [0...full_data[0].values.length]
+      for column in full_data
+        if column.key == field_name
+          return column.values
+      return []
+
+    $('.js-generate-graph').click ->
+      y_axes = []
+      $(".js-y-axis-checkbox:checked").each ->
+        y_axes.push $(this).data('y-index')
+      x_axis = $('.js-x-axis-select').val()
+      unless y_axes.length == 0
+        x_values = find_in_full_data x_axis
+        y_values = []
+        for y_axis in y_axes
+          y_values.push find_in_full_data y_axis
+        data = []
+        for i in [0 ... y_axes.length]
+          data[i] = {key:y_axes[i], values:[]}
+          for j in [0 ... x_values.length]
+            x = parseFloat x_values[j]
+            y = parseFloat y_values[i][j]
+            data[i].values[j] = {x:x, y:y}
+        console.log data
+        build_graph data
+      
+
+    build_graph = (data)->
+      nv.addGraph -> 
+        chart = nv.models.lineWithFocusChart()
+        d3.select('#chart svg').datum(data).transition().duration(500).call(chart);
+        nv.utils.windowResize(chart.update);
+
+        return chart;
+      $("#chart").slideDown()
+
