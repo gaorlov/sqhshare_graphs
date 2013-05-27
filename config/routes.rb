@@ -1,6 +1,10 @@
 SqlshareGraphs::Application.routes.draw do
 
-  resources :graphs
+  resources :graphs do
+    collection do
+      get 'error'
+    end
+  end
 
   resources :sessions do
     collection do

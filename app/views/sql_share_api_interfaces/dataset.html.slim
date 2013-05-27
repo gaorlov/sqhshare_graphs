@@ -15,7 +15,7 @@
   -@columns.each_with_index do |col_desc, i|
     .span2
       .checkbox
-        -disabled = ["System.String", "varchar"].include? col_desc["dbtype"]
+        -disabled = ["System.String", "varchar", "string"].include? col_desc["dbtype"]
         -if disabled
           input[type="checkbox" disabled]
         -else
@@ -37,11 +37,19 @@
       -@x_axes.each_with_index do |axis, i|
         option= axis["name"]
   .span12
-    =link_to 'Generate', '#!', :class => 'js-generate-graph btn btn-primary'
+    .row
+      .span2=link_to 'Generate', '#!', :class => 'js-generate-graph btn btn-primary'
+      .checkbox
+        input.js-x-log[type="checkbox"]
+        | Logarithmic X scale
+      .checkbox
+        input.js-y-log[type="checkbox"]
+        | Logarithmic Y scale
+
 
 .row
   #chart style="display:none"
-    svg[style="height:500px"]
+    svg[style="height:600px"]
 
 #full-dataset
   .row
@@ -60,7 +68,8 @@
               .text-center.span1="#{datum == "" ? '--' : datum}"
 
 javascript:
-  full_data = #{raw (@data.to_s.gsub("=>", ":").gsub("\"key\"", "key").gsub("\"values\"", "values"))}
+  window.full_data = #{raw (@data.to_s.gsub("=>", ":").gsub("\"key\"", "key").gsub("\"values\"", "values")).gsub('nil', 'null')};
+  console.log(window.full_data);
 coffee:
   $ ->
 
@@ -70,8 +79,8 @@ coffee:
 
     find_in_full_data = (field_name) ->
       if field_name == "index"
-        return [0...full_data[0].values.length]
-      for column in full_data
+        return [0...window.full_data[0].values.length]
+      for column in window.full_data
         if column.key == field_name
           return column.values
       return []
@@ -100,6 +109,7 @@ coffee:
     build_graph = (data)->
       nv.addGraph -> 
         chart = nv.models.lineWithFocusChart()
+        chart.xScale(d3.scale.log()) if $('.js-x-log:checked').length != 0
         d3.select('#chart svg').datum(data).transition().duration(500).call(chart);
         nv.utils.windowResize(chart.update);
 

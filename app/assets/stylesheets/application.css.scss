@@ -33,4 +33,9 @@
 }
 body > .container{
   margin-bottom: 40px;
+  word-wrap: break-word;
+}
+.row.bordered{
+  margin-bottom: 5px;
+  border-bottom: 1px solid #eee;
 }
