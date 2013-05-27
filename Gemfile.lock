@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:adeven/nvd3-rails.git
+  remote: https://github.com/adeven/nvd3-rails.git
   revision: 3897010b862396309b35cb73ba4b73a51ecfc24b
   submodules: true
   specs:
