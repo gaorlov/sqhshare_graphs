@@ -5,8 +5,9 @@
     =link_to 'Execute Query', '#!', :class => 'btn btn-primary js-execute-query'
 row
   .span8
-    .js-spinner style='display:none'=spinner
-    .js-result-field
+    center
+      .js-spinner style='display:none'=spinner
+      .js-result-field
 
 
 coffee:
@@ -14,13 +15,4 @@ coffee:
     $('.js-execute-query').click -> 
       sql = $('.js-query-area').val()
       $('.js-spinner').show()
-      $.ajax
-        url: '/sql_share/data_from_sql?sql=' + sql
-        success: (data, status, xhr) ->
-          console.log($.parseJSON(data.value).url)
-          $.ajax
-            url:'/sql_share/get_process_data?url=' + $.parseJSON(data.value).url
-            success: (data, status, xhr) ->
-              console.log data
-              $('.js-spinner').hide()
-              $('.js-result-field').html(data.value)
+      window.location.replace("/sql_share/dataset?url=/REST.svc/execute?sql=#{sql}&sample=false&auth=true")

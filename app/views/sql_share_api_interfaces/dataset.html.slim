@@ -2,7 +2,9 @@
   .span12 
     h4 stats
   .span2 rows
-  .span10= @set["rows_total"]
+  .span10
+    = @set["rows_total"]
+    .muted  NOTE: if the dataset is large, it may take a while to render the graph
   .span2 sql
   .span10
     pre.prettyprint= @sql
