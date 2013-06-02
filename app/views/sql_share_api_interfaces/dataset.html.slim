@@ -5,10 +5,14 @@
   .span10
     = @set["rows_total"]
     .muted  NOTE: if the dataset is large, it may take a while to render the graph
-  .span2 sql
+  .span2 
+    | SQL  
+    span.muted Click to edit
   .span10
-    pre.prettyprint= @sql
-
+    pre.prettyprint.js-sql.js-sql-edit.fake-link[data-toggle="tooltip" data-placement="top" title="Click to edit me"]= @sql
+    pre.prettyprint.js-sql style="display:none"
+      textarea.span9.js-sql-textarea=@sql
+      = link_to "Run Query", "#!",:class => "js-new-graph btn btn-primary"
 .row
   .span12
     h4 
@@ -16,7 +20,7 @@
       span.muted.text-tiny  (select as many as you'd like to add to graph)
   -@columns.each_with_index do |col_desc, i|
     .span2
-      .checkbox
+      label.checkbox
         -disabled = ["System.String", "varchar", "string"].include? col_desc["dbtype"]
         -if disabled
           input[type="checkbox" disabled]
@@ -31,7 +35,7 @@
       |  at the bottom of the page to make sure that there are no missing points, as the graph may not render correctly otherwise
   .span12
     h4
-      | X axes
+      | X axis
       span.muted.text-tiny  (select one)
   .span2
     select.js-x-axis-select
@@ -40,7 +44,13 @@
         option= axis["name"]
   .span12
     .row
-      .span2=link_to 'Generate', '#!', :class => 'js-generate-graph btn btn-primary'
+      .span1=link_to 'Generate', '#!', :class => 'js-generate-graph btn btn-primary', :disabled => true
+      .span2
+        select.js-graph-type
+          option[data-type="scatterChart"]Scatter Plot
+          option[data-type="lineWithFocusChart"] Line Chart With Zoom
+          option[data-type="lineChart"] Simple Line Chart
+          option[data-type="multiBarChart"] Bar Chart
 
 
 .row
@@ -65,13 +75,18 @@
 
 javascript:
   window.full_data = #{raw (@data.to_s.gsub("=>", ":").gsub("\"key\"", "key").gsub("\"values\"", "values")).gsub('nil', 'null')};
-  console.log(window.full_data);
 coffee:
   $ ->
 
     $('.js-toggle-dataset').click ->
       $('.js-toggle-dataset').toggle()
       $('.js-dataset').slideToggle()
+
+    $('.js-y-axis-checkbox').click ->
+      if $('.js-y-axis-checkbox:checked').length !=0 
+        $('.js-generate-graph').removeAttr "disabled"
+      else
+        $('.js-generate-graph').attr "disabled", "disabled"
 
     find_in_full_data = (field_name) ->
       if field_name == "index"
@@ -97,14 +112,20 @@ coffee:
           for j in [0 ... x_values.length]
             x = parseFloat x_values[j]
             y = parseFloat y_values[i][j]
-            data[i].values[j] = {x:x, y:y}
-        console.log data
+            data[i].values[j] = {x:x, y:y} 
         build_graph data
       
 
     build_graph = (data)->
+
+      graph = eval "nv.models." + $('.js-graph-type option:selected').data("type");
+
+      $("#chart > svg > *").remove()
+      nv.graphs = []
+      nv.charts = {}
+
       nv.addGraph -> 
-        chart = nv.models.lineWithFocusChart()
+        chart = graph()
         chart.xScale(d3.scale.log()) if $('.js-x-log:checked').length != 0
         d3.select('#chart svg').datum(data).transition().duration(500).call(chart);
         nv.utils.windowResize(chart.update);
@@ -112,3 +133,9 @@ coffee:
         return chart;
       $("#chart").slideDown()
 
+    $('.js-sql-edit').click ->
+      $('.js-sql').toggle();
+
+    $('.js-new-graph').click ->
+      sql = $('.js-sql-textarea').val()
+      window.location.replace("/sql_share/dataset?url=/REST.svc/execute?sql=#{sql}&sample=false&auth=true")
