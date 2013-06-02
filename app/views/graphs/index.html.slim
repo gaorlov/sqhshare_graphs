@@ -29,8 +29,8 @@ coffee:
           jsonData = $.parseJSON data.value
           $.each(jsonData, (i, val)-> 
             $html = $('<div class="row bordered">')
-            sample_link = "<a href=\"/sql_share/dataset?url=#{val.url}&sample=true\">Sample</a>"
-            full_link   = "<a href=\"/sql_share/dataset?url=/REST.svc/execute?sql=SELECT * FROM #{val.qualified_name}&sample=false&auth=true\">Full Set</a>"
+            sample_link = "<a href=\"/sql_share/dataset?url=#{val.url}&sample=true\" target=\"_blank\">Sample</a>"
+            full_link   = "<a href=\"/sql_share/dataset?url=/REST.svc/execute?sql=SELECT * FROM #{val.qualified_name}&sample=false&auth=true\" target=\"_blank\">Full Set</a>"
             $html.append($("<div class=\"span2\">#{val.name}</div>
                             <div class=\"span5\">#{val.description} <span class='muted'>#{val.qualified_name}<span></div>
                             <div class=\"span3 text-right\">#{val.owner}</div>
