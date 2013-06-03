@@ -13,6 +13,8 @@
     pre.prettyprint.js-sql style="display:none"
       textarea.span9.js-sql-textarea=@sql
       = link_to "Run Query", "#!",:class => "js-new-graph btn btn-primary"
+      |  
+      = link_to "Cancel", "#!", :class=> "js-sql-cancel"
 .row
   .span12
     h4 
@@ -133,7 +135,7 @@ coffee:
         return chart;
       $("#chart").slideDown()
 
-    $('.js-sql-edit').click ->
+    $('.js-sql-edit, .js-sql-cancel').click ->
       $('.js-sql').toggle();
 
     $('.js-new-graph').click ->
