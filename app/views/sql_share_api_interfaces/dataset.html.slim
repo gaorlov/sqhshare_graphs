@@ -18,6 +18,12 @@
     h4 
       | Y axes
       span.muted.text-tiny  (select as many as you'd like to add to graph)
+  .span12
+    .row
+      .span2
+        =link_to "Select All", "#!", :class => 'js-select-all'
+      .span2
+        =link_to "Deselect All", "#!", :class => 'js-deselect-all'
   -@columns.each_with_index do |col_desc, i|
     .span2
       label.checkbox
@@ -160,3 +166,11 @@ coffee:
       $('.js-y-axis-checkbox').not("[data-y-index=#{group_by}]").click()
       $('.js-generate-graph').click();      
 
+
+    $('.js-select-all').click -> 
+      $('.js-y-axis-checkbox').not(':disabled').prop 'checked', true
+      $('.js-generate-graph').removeAttr "disabled"
+
+    $('.js-deselect-all').click -> 
+      $('.js-y-axis-checkbox').not(':disabled').prop 'checked', false
+      $('.js-generate-graph').attr "disabled", "disabled"
