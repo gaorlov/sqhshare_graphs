@@ -139,3 +139,12 @@ coffee:
     $('.js-new-graph').click ->
       sql = $('.js-sql-textarea').val()
       window.location.replace("/sql_share/dataset?url=/REST.svc/execute?sql=#{sql}&sample=false&auth=true")
+
+    group_by = false
+    try
+      group_by = $('.js-sql-edit').html().match(/group\W*by\W*\w*/g)[0].split(' ').pop()
+    if group_by
+      $('.js-x-axis-select').val(group_by)
+      $('.js-y-axis-checkbox').not("[data-y-index=#{group_by}]").click()
+      $('.js-generate-graph').click();      
+
