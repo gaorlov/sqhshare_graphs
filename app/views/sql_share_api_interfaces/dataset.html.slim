@@ -1,7 +1,5 @@
 .row
-  .span12 
-    h4 stats
-  .span2 rows
+  .span2 Rows
   .span10
     = @set["rows_total"]
     .muted  NOTE: if the dataset is large, it may take a while to render the graph
@@ -140,7 +138,7 @@ coffee:
 
     $('.js-new-graph').click ->
       sql = $('.js-sql-textarea').val()
-      window.location.replace("/sql_share/dataset?url=/REST.svc/execute?sql=#{sql}&sample=false&auth=true")
+      $('.js-new-graph').attr "href", "/sql_share/dataset?url=/REST.svc/execute?sql=#{sql}&sample=false&auth=true"
 
     group_by = false
     try

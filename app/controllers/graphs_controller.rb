@@ -4,7 +4,7 @@ class GraphsController < ApplicationController
   end
 
   def new
-    @title = "Run Queries"
+    @title = "New Query"
   end
 
   def dataset
