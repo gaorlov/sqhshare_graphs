@@ -9,7 +9,7 @@
   .span10
     pre.prettyprint.js-sql.js-sql-edit.fake-link[data-toggle="tooltip" data-placement="top" title="Click to edit"]= @sql
     pre.prettyprint.js-sql style="display:none"
-      textarea.span9.js-sql-textarea=@sql
+      textarea.span9.js-sql-textarea=@sql.downcase
       = link_to "Run Query", "#!",:class => "js-new-graph btn btn-primary"
       |  
       = link_to "Cancel", "#!", :class=> "js-sql-cancel"
@@ -17,13 +17,18 @@
   .span12
     h4 
       | Y axes
-      span.muted.text-tiny  (select as many as you'd like to add to graph)
+      span.muted.text-tiny  (select as many as you'd like to add to graph, but note that strings are not selectable)
   .span12
-    .row
-      .span2
-        =link_to "Select All", "#!", :class => 'js-select-all'
-      .span2
-        =link_to "Deselect All", "#!", :class => 'js-deselect-all'
+    -if @x_axes.count == 0
+      .alert
+        p There are no selectable columns in this dataset. We can't graph strings. Sorries <strong>:(</strong>
+        p You should refine your query to make your input strings or floats
+    -else
+      .row
+        .span2
+          =link_to "Select All", "#!", :class => 'js-select-all'
+        .span2
+          =link_to "Deselect All", "#!", :class => 'js-deselect-all'
   -@columns.each_with_index do |col_desc, i|
     .span2
       label.checkbox

@@ -38,4 +38,6 @@ coffee:
 
             $('.js-dataset-list').append($html) 
           )
+      error: ->
+        $('.js-remove-on-load').html $('<div class="alert alert-error"><strong>Oh noes! Dataset load failboated. Sad day. Please try again later, or contact your system administrator.</strong></div>')
     return
