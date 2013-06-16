@@ -1,81 +1,99 @@
 .row
-  .span2 Rows
-  .span10
-    = @set["rows_total"]
-    .muted  NOTE: if the dataset is large, it may take a while to render the graph
-  .span2 
+  -if @set["rows_total"] > 1000
+    .span12
+      .row
+        .span1
+          h5 Rows
+        .span1
+            h5= @set["rows_total"]
+        .span5
+          .alert This dataset is large; it may take a while to render the graph.
+  .span1 
     | SQL  
-    span.muted Click to edit
-  .span10
-    pre.prettyprint.js-sql.js-sql-edit.fake-link[data-toggle="tooltip" data-placement="top" title="Click to edit"]= @sql
+  .span11
+    pre.prettyprint.js-sql.js-sql-edit.fake-link[data-toggle="tooltip" data-placement="top" title="Click to edit"]
+      = @sql
+      .muted Click to edit
     pre.prettyprint.js-sql style="display:none"
-      textarea.span9.js-sql-textarea=@sql.downcase
+      textarea.span10.js-sql-textarea=@sql.downcase
       = link_to "Run Query", "#!",:class => "js-new-graph btn btn-primary"
       |  
       = link_to "Cancel", "#!", :class=> "js-sql-cancel"
 .row
   .span12
-    h4 
-      | Y axes
-      span.muted.text-tiny  (select as many as you'd like to add to graph, but note that strings are not selectable)
+    h3 Unselectable String Columns
+  .span12
+    .muted
+      -@columns.each_with_index do |col_desc, i|
+        -if ["System.String", "varchar", "string"].include? col_desc["dbtype"]
+          =truncate(col_desc["name"], :length => 15)
+          | , 
+hr
+.row
+  .span12
+    h3 
+      | Select Y axes
   .span12
     -if @x_axes.count == 0
-      .alert
+      .alert.alert-error
         p There are no selectable columns in this dataset. We can't graph strings. Sorries <strong>:(</strong>
-        p You should refine your query to make your input strings or floats
-    -else
-      .row
-        .span2
-          =link_to "Select All", "#!", :class => 'js-select-all'
-        .span2
-          =link_to "Deselect All", "#!", :class => 'js-deselect-all'
-  -@columns.each_with_index do |col_desc, i|
-    .span2
-      label.checkbox
-        -disabled = ["System.String", "varchar", "string"].include? col_desc["dbtype"]
-        -if disabled
-          input[type="checkbox" disabled]
-        -else
-          input.js-y-axis-checkbox[type="checkbox" data-y-index=col_desc["name"]]
-        span[class="#{disabled ? 'muted' : ''}"]=truncate(col_desc["name"], :length => 15)
-        span.muted.text-tiny  (#{col_desc["dbtype"]})
+        p Refine your query to make your input strings floats.
+  .span9
+    .row
+      -@columns.each_with_index do |col_desc, i|
+        -unless ["System.String", "varchar", "string"].include? col_desc["dbtype"]
+          .span2
+            label.checkbox
+              input.js-y-axis-checkbox[type="checkbox" data-y-index=col_desc["name"]]
+              span=truncate(col_desc["name"], :length => 25)
+  -if @x_axes.count != 0
+    .span3
+      =link_to "Select All", "#!", :class => 'js-select-all'
+      |  | 
+      =link_to "Deselect All", "#!", :class => 'js-deselect-all'
   .span12
     .muted 
       | NOTE: You may want to look at the 
       =link_to "full data set", "#full-dataset"
-      |  at the bottom of the page to make sure that there are no missing points, as the graph may not render correctly otherwise
+      |  at the bottom of the page to make sure that there are no missing points, as the graph may not render correctly otherwise.
+hr
+.row
   .span12
-    h4
-      | X axis
-      span.muted.text-tiny  (select one)
+    h3 Select X axis
   .span2
     select.js-x-axis-select
       option[selected data-x-index='index'] index
       -@x_axes.each_with_index do |axis, i|
         option= axis["name"]
-  .span12
-    .row
-      .span1=link_to 'Generate', '#!', :class => 'js-generate-graph btn btn-primary', :disabled => true
-      .span3
-        select.js-graph-type
-          option[data-type="scatterChart"]Scatter Plot
-          option[data-type="lineWithFocusChart"] Line Chart With Zoom
-          option[data-type="lineChart" data-log-enabled=true] Simple Line Chart
-          option[data-type="multiBarChart"] Bar Chart
-      .span4
-        label.checkbox.js-log.muted
-          input.js-y-log[type="checkbox" disabled]
-          | Log scale Y 
-          span.muted [Only available in Simple Line Chart]
-
+hr
 .row
-  #chart style="display:none"
-    svg[style="height:600px"]
+  .span12
+    h3 Select Chart Type
+  .span3
+    select.js-graph-type
+      option[data-type="scatterChart"]Scatter Plot
+      option[data-type="lineWithFocusChart"] Line Chart With Zoom
+      option[data-type="lineChart" data-log-enabled=true] Simple Line Chart
+      option[data-type="multiBarChart"] Bar Chart
+  .span4
+    label.checkbox.js-log.muted
+      input.js-y-log[type="checkbox" disabled]
+      | Log scale Y 
+      span.muted (Only available in Simple Line Chart)
+hr
+.row
+  .span12=link_to 'Generate', '#!', :class => 'js-generate-graph btn btn-primary btn-large', :disabled => true
+hr  
+.row
+  .span12
+    #chart style="display:none"
+      h2 Graph
+      svg[style="height:600px;"]
 
 #full-dataset
   .row
     .span12
-      h4 
+      h3 
         ' Full Data Set
         =link_to "(show)", '#!', :class => 'js-toggle-dataset'
         =link_to "(hide)", '#!', :class => 'js-toggle-dataset', :style => "display:none"

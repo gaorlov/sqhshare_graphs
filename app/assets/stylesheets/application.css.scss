@@ -17,6 +17,21 @@
 @import "compass/css3/transition";
 @import "header";
 
+body, h1, h2, h3, h4, h5, p, div, span, a{
+  font-family: 'Raleway', sans-serif;
+}
+body{
+  h1, h2, h3, h4, h5{
+    font-weight: 300;
+  }
+  h1{font-size: 37px;}
+  h2{font-size: 29px;}
+  h3{font-size: 22px;}
+  h4{font-size: 19px;}
+  h5{font-size: 15px;}
+  font-size: 12px;
+}
+
 .full-width{
   width: 100%;
 }

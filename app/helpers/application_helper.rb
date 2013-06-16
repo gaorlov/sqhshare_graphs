@@ -9,7 +9,7 @@ module ApplicationHelper
 
     content = link_to(text, link_path, link_options)
     content = capture(content, &block) if block_given?
-    content_tag(:h5, content, :class => "primary-link text-center #{active ? 'active': ''}" )
+    content_tag(:h5, content, :class => "primary-link #{active ? 'active': ''}" )
   end
 
   def spinner

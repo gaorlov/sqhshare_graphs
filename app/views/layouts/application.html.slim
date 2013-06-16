@@ -5,12 +5,13 @@ html
     = stylesheet_link_tag    "application", :media => "all"
     = javascript_include_tag "application"
     = csrf_meta_tags
+    link href='http://fonts.googleapis.com/css?family=Raleway:400,300,700' rel='stylesheet' type='text/css'
   body
     =render '/layouts/components/header'
     .container
       .row
         .span8
-          h2= @title
+          h1= @title
         .span4
           .logo
             =image_tag "ss-wayf-logo.png", :class => 'span2'

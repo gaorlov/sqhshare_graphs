@@ -57,7 +57,7 @@ class SqlShareApiInterfacesController < ApplicationController
     end
     @data = parse_data @columns, data
     name = @set['name'] || @set['sql'].gsub(/.*\]\.\[/, '').gsub(/]/, '')
-    @title = "dataset \"#{name}\""
+    @title = "Visualize Dataset"
   end
 
 private
