@@ -10,6 +10,7 @@ gem 'slim', '~> 1.3.8'
 gem 'compass'
 gem "nvd3-rails", :git => "https://github.com/adeven/nvd3-rails.git", :submodules => true
 gem 'nokogiri'
+gem 'newrelic_rpm'
 
 # Gems used only for assets and not required
 # in production environments by default.
