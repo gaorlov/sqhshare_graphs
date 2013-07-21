@@ -45,7 +45,17 @@ body{
 }
 .text-tiny{
   font-size: 10px;
+  h2 &{
+    font-size: 14px;
+  }
 }
+
+.stripped-popover{
+  font-size: 14px;
+  font-weight: 500;
+  height: 250px;
+}
+
 body > .container{
   margin-bottom: 40px;
   word-wrap: break-word;

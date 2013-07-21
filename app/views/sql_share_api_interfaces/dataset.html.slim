@@ -1,3 +1,6 @@
+- @graph_height ||= 600
+
+
 .row
   -if @set["rows_total"] > 1000
     .span12
@@ -9,7 +12,8 @@
         .span5
           .alert This dataset is large; it may take a while to render the graph.
   .span1 
-    | SQL  
+    | SQL 
+    =link_to '', '#!', :class => "icon-external-link text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
   .span11
     pre.prettyprint.js-sql.js-sql-edit.fake-link[data-toggle="tooltip" data-placement="top" title="Click to edit"]
       = @sql
@@ -28,6 +32,15 @@
         -if ["System.String", "varchar", "string"].include? col_desc["dbtype"]
           =truncate(col_desc["name"], :length => 15)
           | , 
+hr
+.row
+  .span12
+    h3 Select X axis
+  .span2
+    select.js-x-axis-select
+      option[selected data-x-index='index'] index
+      -@x_axes.each_with_index do |axis, i|
+        option= axis["name"]
 hr
 .row
   .span12
@@ -59,15 +72,6 @@ hr
 hr
 .row
   .span12
-    h3 Select X axis
-  .span2
-    select.js-x-axis-select
-      option[selected data-x-index='index'] index
-      -@x_axes.each_with_index do |axis, i|
-        option= axis["name"]
-hr
-.row
-  .span12
     h3 Select Chart Type
   .span3
     select.js-graph-type
@@ -87,8 +91,10 @@ hr
 .row
   .span12
     #chart style="display:none"
-      h2 Graph
-      svg[style="height:600px;"]
+      h2
+        | Graph 
+        =link_to '', '#!', :class => "icon-external-link text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
+      svg[style="height:#{@graph_height}px;"]
 
 #full-dataset
   .row
@@ -107,7 +113,12 @@ hr
               .text-center.span1="#{datum == "" ? '--' : datum}"
 
 javascript:
-  window.full_data = #{raw (@data.to_s.gsub("=>", ":").gsub("\"key\"", "key").gsub("\"values\"", "values")).gsub('nil', 'null')};
+  window.full_data        = #{raw (@data.to_s.gsub("=>", ":").gsub("\"key\"", "key").gsub("\"values\"", "values")).gsub('nil', 'null')};
+  window.graph_type       = #{raw @graph_type.inspect}
+  window.selected_x_axis  = #{raw @selected_x_axis}
+  window.selected_y_axes  = #{raw @selected_y_axes.to_s}
+  window.render_on_load   = #{raw @render_on_load}
+  window.sqlshare_path    = "#{raw @sqlshare_path}"
 coffee:
   $ ->
 
@@ -185,7 +196,7 @@ coffee:
     group_by = false
     try
       group_by = $('.js-sql-edit').html().match(/group\W*by\W*\w*/g)[0].split(' ').pop()
-    if group_by
+    if group_by && !window.render_on_load
       $('.js-x-axis-select').val(group_by)
       $('.js-y-axis-checkbox').not("[data-y-index=#{group_by}]").click()
       $('.js-generate-graph').click();      
@@ -198,3 +209,46 @@ coffee:
     $('.js-deselect-all').click -> 
       $('.js-y-axis-checkbox').not(':disabled').prop 'checked', false
       $('.js-generate-graph').attr "disabled", "disabled"
+
+    # url params selecting graph stuff
+    if window.graph_type
+      $('.js-graph-type').val(window.graph_type)
+    if window.selected_x_axis
+      $('.js-x-axis-select').val(window.selected_x_axis)
+    if window.selected_y_axes
+      $(window.selected_y_axes).each ->
+        $("[data-y-index=#{this}]").click()
+    if window.render_on_load
+      $('.js-generate-graph').click();
+      $('html, body').animate({
+        scrollTop: $("#chart").offset().top + 20
+        }, 500);
+
+    # generate link from actions
+    $('.js-x-axis-select, .js-y-axis-checkbox, .js-graph-type').change ->
+      $(".js-show-link").attr "data-content", url_for_current_state(true)
+
+
+    url_for_current_state = (html_wrapped = false) -> 
+      y_axes = ""
+      $(".js-y-axis-checkbox:checked").each ->
+        y_axes += "\"#{$(this).attr 'data-y-index'}\","
+
+      graph = switch $('.js-graph-type').val()
+                when "Scatter Plot"
+                  "scatter"
+                when "Line Chart With Zoom"
+                  "line_with_scale"
+                when "Simple Line Chart"
+                  "line"
+                when "Bar Chart"
+                  "bar"
+
+      url = "#{window.location.origin}#{window.location.pathname}?url=#{window.sqlshare_path}&x_axis=\"#{$('.js-x-axis-select').val()}\"&y_axes=[#{y_axes}]&graph_type=#{graph}&render=true"
+      if html_wrapped
+        return "<textarea class='stripped-popover' type=\"text\" value=\"#{url}\" readonly=\"readonly\">#{url}</textarea>"
+      else
+        return url
+
+    $(".js-show-link").attr "data-content", url_for_current_state(true)
+

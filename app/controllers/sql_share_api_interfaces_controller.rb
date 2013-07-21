@@ -58,6 +58,37 @@ class SqlShareApiInterfacesController < ApplicationController
     @data = parse_data @columns, data
     name = @set['name'] || @set['sql'].gsub(/.*\]\.\[/, '').gsub(/]/, '')
     @title = "Visualize Dataset"
+
+
+    @graph_height     = params[:height]     || false
+    @selected_x_axis  = params[:x_axis]     || false
+    @selected_y_axes  = params[:y_axes]     || false
+    @graph_type       = params[:graph_type] || false
+    @render_on_load   = params[:render]     || false
+    @sqlshare_path    = params[:url]
+
+    if @graph_type
+      @graph_type = 
+        case @graph_type
+          when "scatter"
+            "Scatter Plot"
+          when "line_with_scale"
+            "Line Chart With Zoom"
+          when "line"
+            "Simple Line Chart"
+          when "bar"
+            "Bar Chart"
+          else
+            false
+        end
+    end
+
+
+    if params[:layout] == "false"
+      render "white_label_dataset", :layout => false
+    else
+      render "dataset"
+    end
   end
 
 private
