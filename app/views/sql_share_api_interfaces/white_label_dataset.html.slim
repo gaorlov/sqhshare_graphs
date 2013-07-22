@@ -1,0 +1,29 @@
+.js-new-graph
+.js-new-graph-el
+
+coffee:
+  $ -> 
+    options =
+      sql: 'select year, sum(price) as price, sum(value) as value, sum(pounds) as pounds from [gbc3].[coffee prices.csv] group by year'
+      height: 600
+      y_axes: ['price', 'value', 'pounds']
+      x_axis: 'year'
+      graph_type: 'bar'
+
+    options2 =
+      sql: 'select * from [akey7].[full_elements.csv]'
+      height: 600
+      y_axes: ['boil_kelvin', 'melt_kelvin', 'first_ionization_ev']
+      x_axis: 'z'
+      graph_type: 'line_with_scale'
+
+    $.ajax
+      url:"/api/dataset"
+      data: options
+      success: (data)->
+        $('.js-new-graph').html data
+    $.ajax
+      url:"/api/dataset"
+      data: options2
+      success: (data)->
+        $('.js-new-graph-el').html data

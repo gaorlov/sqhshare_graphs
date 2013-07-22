@@ -6,6 +6,12 @@ SqlshareGraphs::Application.routes.draw do
     end
   end
 
+  resources :api do
+    collection do
+      get 'dataset'
+    end
+  end
+
   resources :sessions do
     collection do
       get 'new'
