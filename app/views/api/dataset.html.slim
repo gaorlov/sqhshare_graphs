@@ -1,3 +1,7 @@
+-if @include_styling
+  = stylesheet_link_tag    "application", :media => "all"
+  = javascript_include_tag "application"
+
 -id = "graph-#{rand(1000)}"
 div id=id
   .chart

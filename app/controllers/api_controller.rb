@@ -2,7 +2,6 @@ class ApiController < ApplicationController
   require 'json'
 
   def dataset
-    puts params.inspect
 
     if params[:sql] == nil
       render :status => 404
@@ -14,12 +13,18 @@ class ApiController < ApplicationController
     #raise set
 
     y_axes = params[:y_axes] || []
+    
+    if y_axes.class.to_s == "String"
+      y_axes = y_axes.split(",")
+    end
+
     x_axis = params[:x_axis]
     
     data = set["data"]
 
     @data = generate_data y_axes, x_axis, data, set["header"]
     
+    @include_styling = params[:styled]
 
     @graph_type = case params[:graph_type]
                     when "line_with_scale"

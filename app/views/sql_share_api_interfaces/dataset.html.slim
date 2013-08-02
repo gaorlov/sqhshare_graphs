@@ -13,7 +13,7 @@
           .alert This dataset is large; it may take a while to render the graph.
   .span1 
     | SQL 
-    =link_to '', '#!', :class => "icon-external-link text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
+    =link_to 'Share', '#!', :class => "icon-external-link text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
   .span11
     pre.prettyprint.js-sql.js-sql-edit.fake-link[data-toggle="tooltip" data-placement="top" title="Click to edit"]
       = @sql
@@ -93,7 +93,7 @@ hr
     #chart style="display:none"
       h2
         | Graph 
-        =link_to '', '#!', :class => "icon-external-link text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
+        =link_to ' Share', '#!', :class => "icon-external-link text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
       svg[style="height:#{@graph_height}px;"]
 
 #full-dataset
@@ -119,6 +119,7 @@ javascript:
   window.selected_y_axes  = #{raw @selected_y_axes.to_s}
   window.render_on_load   = #{raw @render_on_load}
   window.sqlshare_path    = "#{raw @sqlshare_path}"
+  window.sql              = "#{@sql}"
 coffee:
   $ ->
 
@@ -226,10 +227,10 @@ coffee:
 
     # generate link from actions
     $('.js-x-axis-select, .js-y-axis-checkbox, .js-graph-type').change ->
-      $(".js-show-link").attr "data-content", url_for_current_state(true)
+      $(".js-show-link").attr "data-content", "<div>#{url_for_current_state(true)}#{url_for_current_state(true, true)}</div>"
 
 
-    url_for_current_state = (html_wrapped = false) -> 
+    url_for_current_state = (html_wrapped = false, whitelabel = false) -> 
       y_axes = ""
       $(".js-y-axis-checkbox:checked").each ->
         y_axes += "\"#{$(this).attr 'data-y-index'}\","
@@ -243,12 +244,21 @@ coffee:
                   "line"
                 when "Bar Chart"
                   "bar"
+      title = ""
+      url = ""
 
-      url = "#{window.location.origin}#{window.location.pathname}?url=#{window.sqlshare_path}&x_axis=\"#{$('.js-x-axis-select').val()}\"&y_axes=[#{y_axes}]&graph_type=#{graph}&render=true"
+      if whitelabel
+        title = "View this figure on SqlShare-Graphs"
+        url = "#{window.location.origin}#{window.location.pathname}?url=#{window.sqlshare_path}&x_axis=\"#{$('.js-x-axis-select').val()}\"&y_axes=[#{y_axes}]&graph_type=#{graph}&render=true"
+      else
+        title = "Unstyled Graph (for embedding)"
+        url = "#{window.location.origin}/api/dataset?sql=#{window.sql}&height=600&x_axis=#{$('.js-x-axis-select').val()}&y_axes=#{y_axes.replace(/\"/g, "")}&graph_type=#{graph}&styled=true"
+
+
       if html_wrapped
-        return "<textarea class='stripped-popover' type=\"text\" value=\"#{url}\" readonly=\"readonly\">#{url}</textarea>"
+        return "<h5>#{title}</h5><textarea class='stripped-popover' type=\"text\" value=\"#{url}\" readonly=\"readonly\">#{url}</textarea>"
       else
         return url
 
-    $(".js-show-link").attr "data-content", url_for_current_state(true)
+    $(".js-show-link").attr "data-content", "<div>#{url_for_current_state(true)}#{url_for_current_state(true, true)}</div>"
 
