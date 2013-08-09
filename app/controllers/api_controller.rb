@@ -12,7 +12,7 @@ class ApiController < ApplicationController
     
     set = HttpHelper.http_get(HttpHelper::EXECUTE + URI.escape(params[:sql]))
     set = JSON.parse(set)
-    raise set
+    #raise set
 
     y_axes = params[:y_axes] || []
     
