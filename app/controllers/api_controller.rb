@@ -3,6 +3,8 @@ class ApiController < ApplicationController
 
   def dataset
 
+    puts params
+
     if params[:sql] == nil
       render :status => 404
       return
@@ -10,7 +12,7 @@ class ApiController < ApplicationController
     
     set = HttpHelper.http_get(HttpHelper::EXECUTE + URI.escape(params[:sql]))
     set = JSON.parse(set)
-    #raise set
+    raise set
 
     y_axes = params[:y_axes] || []
     

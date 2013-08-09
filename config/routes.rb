@@ -3,6 +3,7 @@ SqlshareGraphs::Application.routes.draw do
   resources :graphs do
     collection do
       get 'error'
+      get 'set'
     end
   end
 
