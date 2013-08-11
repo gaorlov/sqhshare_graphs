@@ -3,7 +3,7 @@ SqlshareGraphs::Application.routes.draw do
   resources :graphs do
     collection do
       get 'error'
-      get 'set'
+      get 'sample_bag'
     end
   end
 

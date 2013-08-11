@@ -1,0 +1,26 @@
+.row
+  -@graphs.each do |graph|
+    .js-graph[class="span#{12/@columns}" data-sql=graph[:sql] data-x-axis=graph[:x_axis] data-y-axes=graph[:y_axes] data-graph-type=graph[:graph_type] data-height=graph[:height]]
+
+coffee:
+  $ -> 
+    $('.js-graph').each ->
+      $this = $(this)
+      sql = $(this).attr "data-sql"
+      x_axis = $(this).attr "data-x-axis"
+      y_axes = $(this).attr("data-y-axes").split(",")
+      graph_type = $(this).attr "data-graph-type"
+      height = $(this).attr "data-height"
+
+      request_data =  
+        sql: sql
+        x_axis: x_axis
+        y_axes: y_axes
+        graph_type: graph_type
+        height: height
+
+      $.ajax
+        url:"/api/dataset"
+        data: request_data
+        success: (data)->
+          $this.html data

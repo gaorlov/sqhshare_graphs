@@ -12,7 +12,6 @@ class ApiController < ApplicationController
     
     set = HttpHelper.http_get(HttpHelper::EXECUTE + URI.escape(params[:sql]))
     set = JSON.parse(set)
-    #raise set
 
     y_axes = params[:y_axes] || []
     
@@ -24,22 +23,30 @@ class ApiController < ApplicationController
     
     data = set["data"]
 
-    @data = generate_data y_axes, x_axis, data, set["header"]
+    parsed_data = generate_data y_axes, x_axis, data, set["header"]
     
-    @include_styling = params[:styled]
+    if parsed_data[:status] == :failure
+      @error = parsed_data[:data]
+    else
 
-    @graph_type = case params[:graph_type]
-                    when "line_with_scale"
-                      "lineWithFocusChart"
-                    when "line"
-                      "lineChart"
-                    when "bar"
-                      "multiBarChart"
-                    else
-                      "scatterChart"
-                    end
+      @data = parsed_data[:data]
 
-    @graph_height = params[:height] || 600
+      @include_styling = params[:styled]
+
+      @graph_type = case params[:graph_type]
+                      when "line_with_scale"
+                        "lineWithFocusChart"
+                      when "line"
+                        "lineChart"
+                      when "bar"
+                        "multiBarChart"
+                      else
+                        "scatterChart"
+                      end
+
+      @graph_height = params[:height] || 600
+
+    end
 
     render :layout => false
   end
@@ -58,6 +65,14 @@ class ApiController < ApplicationController
     y_axes.each do |y_axis|
       y_index = find_index col_names, y_axis
       x_index = find_index col_names, x_axis
+
+      if y_index == false || x_index == false
+        @error = []
+        @error << "y axis \"#{y_axis}\" not found in #{col_names}" unless y_index
+        @error << "x axis \"#{x_axis}\" not found in #{col_names}" unless x_index
+        return {:status => :failure, :data => @error}
+      end
+
       col_data = {"key" => y_axis, "values" => []}
 
       data.each_with_index do |datum, i|
@@ -69,6 +84,6 @@ class ApiController < ApplicationController
       end
       ret_data << col_data
     end
-    return ret_data
+    return {:status => :success, :data => ret_data}
   end
 end

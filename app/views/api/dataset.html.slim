@@ -3,20 +3,26 @@
   = javascript_include_tag "application"
 
 -id = "graph-#{rand(1000)}"
-div id=id
-  .chart
-    svg[style="height:#{@graph_height}px;"]
+-unless @error
+  div id=id
+    .chart
+      svg[style="height:#{@graph_height}px;"]
+-else
+  h3.text-error 
+    | An error has occured: 
+    - @error.each do |err|
+      = err
 
 
 javascript:
   window.graph      = nv.models.#{@graph_type};
   window.chart_data = #{raw (@data.to_s.gsub("=>", ":").gsub("\"key\"", "key").gsub("\"values\"", "values")).gsub('nil', 'null').gsub('"x"', 'x').gsub('"y"', 'y')};
-  window.chart_id   = "#{id}"
-coffee:
-  $ ->
-    nv.addGraph -> 
+  $(function(){
+    nv.addGraph(function(){
       chart = window.graph()
-      d3.select("##{window.chart_id} svg").datum(window.chart_data).transition().duration(500).call(chart);
+      d3.select("##{id} svg").datum(window.chart_data).transition().duration(500).call(chart);
       nv.utils.windowResize(chart.update);
 
       return chart;
+    });
+  });
