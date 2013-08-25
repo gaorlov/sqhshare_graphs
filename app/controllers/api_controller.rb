@@ -23,7 +23,7 @@ class ApiController < ApplicationController
     
     data = set["data"]
 
-    parsed_data = generate_data y_axes, x_axis, data, set["header"]
+    parsed_data = generate_data y_axes, x_axis, data, set["header"], set["type"].map{|i|i.downcase}
     
     if parsed_data[:status] == :failure
       @error = parsed_data[:data]
@@ -60,7 +60,7 @@ class ApiController < ApplicationController
     return false
   end
 
-  def generate_data y_axes, x_axis = null, data, col_names
+  def generate_data y_axes, x_axis = null, data, col_names, types
     ret_data = []
     y_axes.each do |y_axis|
       y_index = find_index col_names, y_axis
@@ -76,10 +76,12 @@ class ApiController < ApplicationController
       col_data = {"key" => y_axis, "values" => []}
 
       data.each_with_index do |datum, i|
+        y_value = types[y_index] == "datetime" ? "new Date('#{datum[y_index]}').getTime()" : datum[y_index]
         if !x_axis
-          col_data["values"] << {"x" => i, "y" => datum[y_index]}
+          col_data["values"] << {"x" => i, "y" => y_value }
         else
-          col_data["values"] << {"x" => datum[x_index], "y" => datum[y_index]}
+          x_value = types[x_index] == "datetime" ? "new Date('#{datum[x_index]}').getTime()" : datum[x_index]
+          col_data["values"] << {"x" => x_value, "y" => y_value}
         end
       end
       ret_data << col_data

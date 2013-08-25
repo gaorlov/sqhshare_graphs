@@ -15,14 +15,16 @@
 
 
 javascript:
-  window.graph      = nv.models.#{@graph_type};
-  window.chart_data = #{raw (@data.to_s.gsub("=>", ":").gsub("\"key\"", "key").gsub("\"values\"", "values")).gsub('nil', 'null').gsub('"x"', 'x').gsub('"y"', 'y')};
   $(function(){
+    var graph      = nv.models.#{@graph_type};
+    var chart_data = #{raw (@data.to_s.gsub("=>", ":").gsub("\"key\"", "key").gsub("\"values\"", "values")).gsub('nil', 'null').gsub('"x"', 'x').gsub('"y"', 'y').gsub(/\"new Date\('(?<param>[a-zA-Z0-9\/: ]*)'\).getTime\(\)\"/, 'new Date(\'\k<param>\').getTime()')};
+  
     nv.addGraph(function(){
-      chart = window.graph()
-      d3.select("##{id} svg").datum(window.chart_data).transition().duration(500).call(chart);
+      chart = graph()
+      d3.select("##{id} svg").datum(chart_data).transition().duration(500).call(chart);
       nv.utils.windowResize(chart.update);
 
+      console.log("##{id} done")
       return chart;
     });
   });

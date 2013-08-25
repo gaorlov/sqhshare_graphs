@@ -1,6 +1,11 @@
-.row
-  -@graphs.each do |graph|
-    .js-graph[class="span#{12/@columns}" data-sql=graph[:sql] data-x-axis=graph[:x_axis] data-y-axes=graph[:y_axes] data-graph-type=graph[:graph_type] data-height=graph[:height]]
+-@graphs.each_slice(@columns) do |graphs|
+  .row
+    -graphs.each do |graph|
+      .box[class="span#{12/@columns}"]
+        pre
+          code =graph[:sql]
+        .js-kill-me.text-center=spinner
+        .js-graph[data-sql=graph[:sql] data-x-axis=graph[:x_axis] data-y-axes=graph[:y_axes] data-graph-type=graph[:graph_type] data-height=graph[:height]]
 
 coffee:
   $ -> 
@@ -24,3 +29,4 @@ coffee:
         data: request_data
         success: (data)->
           $this.html data
+          $this.parents('.box').find('.js-kill-me').remove()

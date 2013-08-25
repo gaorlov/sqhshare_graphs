@@ -67,3 +67,15 @@ body > .container{
 .fake-link{
   cursor:pointer;
 }
+.box{
+  border:1px solid #eaeaea;
+  @include box-sizing(border-box);
+  overflow:hidden;
+  margin-bottom: 12px;
+  & > *:first-child{
+    margin-top: 12px;
+  }
+  & > *{
+    margin: 0 12px;
+  }
+}
