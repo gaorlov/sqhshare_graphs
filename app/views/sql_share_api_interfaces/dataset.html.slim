@@ -118,7 +118,6 @@ javascript:
   window.selected_x_axis  = #{raw @selected_x_axis}
   window.selected_y_axes  = #{raw @selected_y_axes.to_s}
   window.render_on_load   = #{raw @render_on_load}
-  window.sqlshare_path    = "#{raw @sqlshare_path}"
   window.sql              = "#{@sql}"
 coffee:
   $ ->
@@ -228,6 +227,8 @@ coffee:
     # generate link from actions
     $('.js-x-axis-select, .js-y-axis-checkbox, .js-graph-type').change ->
       $(".js-show-link").attr "data-content", "<div>#{url_for_current_state(true)}#{url_for_current_state(true, true)}</div>"
+      $(".js-show-link").each -> 
+        $(this).popover("hide");
 
 
     url_for_current_state = (html_wrapped = false, whitelabel = false) -> 
@@ -249,7 +250,7 @@ coffee:
 
       if whitelabel
         title = "View this figure on SqlShare-Graphs"
-        url = "#{window.location.origin}#{window.location.pathname}?url=#{window.sqlshare_path}&x_axis=\"#{$('.js-x-axis-select').val()}\"&y_axes=[#{y_axes}]&graph_type=#{graph}&render=true"
+        url = "#{window.location.origin}#{window.location.pathname}?sql=#{window.sql}&x_axis=\"#{$('.js-x-axis-select').val()}\"&y_axes=[#{y_axes}]&graph_type=#{graph}&render=true"
       else
         title = "Unstyled Graph (for embedding)"
         url = "#{window.location.origin}/api/dataset?sql=#{window.sql}&height=600&x_axis=#{$('.js-x-axis-select').val()}&y_axes=#{y_axes.replace(/\"/g, "")}&graph_type=#{graph}&styled=true"

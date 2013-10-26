@@ -3,16 +3,11 @@ class ApiController < ApplicationController
 
   def dataset
 
-    puts params
-
     if params[:sql] == nil
       render :status => 404
       return
     end
     
-    set = HttpHelper.http_get(HttpHelper::EXECUTE + URI.escape(params[:sql]))
-    set = JSON.parse(set)
-
     y_axes = params[:y_axes] || []
     
     if y_axes.class.to_s == "String"
@@ -20,7 +15,33 @@ class ApiController < ApplicationController
     end
 
     x_axis = params[:x_axis]
+
+    axes = y_axes << x_axis
+    escaped_axes = ""
+    axes.each do |axis|
+      escaped_axes += "[#{axis}]"
+      escaped_axes += ", " unless axis == axes.last
+    end
+
+    sql = "SELECT #{escaped_axes} FROM (#{params[:sql]}) x"
+
+    begin
+      set = HttpHelper.http_get(HttpHelper::EXECUTE + URI.escape(sql))
+      set = JSON.parse(set)
+    rescue Exception => e
+      @title = "SQL Error"
+      render error_graphs_path
+      return
+    end
     
+    @status = set["Message from SQLShare"] if set["Message from SQLShare"]
+
+    if set["Message from SQLShare"] || !set
+      @title = "Oh good heavens! This is just terrible. >:["
+      render error_graphs_path
+      return
+    end
+
     data = set["data"]
 
     parsed_data = generate_data y_axes, x_axis, data, set["header"], set["type"].map{|i|i.downcase}

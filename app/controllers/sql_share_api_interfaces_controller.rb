@@ -1,70 +1,55 @@
 class SqlShareApiInterfacesController < ApplicationController
+  require 'pp'
 
   def dataset_list
     render :json => {:status => 'success', :value => HttpHelper.http_get(HttpHelper::DATASET_LIST) }
   end
 
-  def data_from_sql
-    url = HttpHelper::SQLV1 + URI.escape(params[:sql]) + "&maxrows=#{params[:maxrows] || 250}"
-    render :json => {:status => 'success', :value => HttpHelper.http_get(url, true) }
-  end
-
-  def get_process_data
-    url = params[:url]
-    render :json => {:status => 'success', :value => HttpHelper.http_get(url) }
-  end
-
   def dataset
-
 
     if params[:layout] == "false"
       render "white_label_dataset"
       return
     end
 
-    if !params[:url].present?
+    if !params[:sql].present?
       render :status => 404 
       return
     end
-    set  = HttpHelper.http_get(URI.escape(params[:url]), params[:auth] || false)
+
+    set, @set = nil
+
     begin
+      set = HttpHelper.http_get(HttpHelper::EXECUTE + URI.escape(params[:sql]), true, @api_key)
       @set = JSON.parse(set)
     rescue Exception => e
       @title = "SQLShare Error"
       @sql_share_error = e.to_s
-      render "/graphs/error"
-      return
-    end
-
-    if @set["Detail"]
-      @title = "Oh noes! You can haz error! : ("
-      @status = @set["Detail"]
       render error_graphs_path
       return
     end
 
-    full_set = @set["sample_data"] == nil
+    @status = @set["Message from SQLShare"] if @set["Message from SQLShare"]
 
-    if full_set
-
-      @columns = []
-      @set["header"].each_with_index do |h, i|
-        @columns << {"name" => h, "dbtype" => @set["type"][i]}
-      end
-      data = @set["data"]
-
-    else
-      @columns = @set["columns"]
-      data = @set["sample_data"]
+    if @set["Message from SQLShare"] || !@set
+      @title = "Oh noes! You can haz error! : ("
+      render error_graphs_path
+      return
     end
-    
-    @sql = @set["sql_code"] || @set["sql"]
+
+    @columns = []
+    @set["header"].each_with_index do |h, i|
+      @columns << {"name" => h, "dbtype" => @set["type"][i]}
+    end
+    data = @set["data"]
+
+    @sql = @set["sql"]
     @x_axes = []
     @columns.each_with_index do |col|
       @x_axes << col unless ["System.String", "varchar", "string"].include? col["dbtype"]
     end
     @data = HttpHelper.parse_data @columns, data
-    name = @set['name'] || @set['sql'].gsub(/.*\]\.\[/, '').gsub(/]/, '')
+    name = @set['sql'].gsub(/.*\]\.\[/, '').gsub(/]/, '')
     @title = "Visualize Dataset"
 
 
@@ -73,7 +58,7 @@ class SqlShareApiInterfacesController < ApplicationController
     @selected_y_axes  = params[:y_axes]     || false
     @graph_type       = params[:graph_type] || false
     @render_on_load   = params[:render]     || false
-    @sqlshare_path    = params[:url]
+    @sqlshare_path    = HttpHelper::DATASET_URI + params[:sql]
 
     if @graph_type
       @graph_type = 

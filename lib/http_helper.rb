@@ -4,13 +4,14 @@ class HttpHelper
 
   PREFIX = "https://rest.sqlshare.escience.washington.edu"
   DATASET_LIST = "/REST.svc/v2/db/dataset"
+  DATASET_URI  = "/REST.svc/execute?sql="
   SQLV1 = "/REST.svc/v1/db?sql="
   SQLV2 = "/REST.svc/v2/db"
   #FULL_DATASET = "REST.svc/v1/db/file?sql=" #  &format={format}
   EXECUTE = "/REST.svc/execute?sql="
 
-  def self.http_get url, existing_attributes = false
-    url = PREFIX + url + (@api_key ? ( existing_attributes ? "&" : "?") + "authorization=#{@api_key}" : '' )
+  def self.http_get url, existing_attributes = false, api_key = nil
+    url = PREFIX + url + (api_key ? ( existing_attributes ? "&" : "?") + "auth=true&authorization=#{api_key}" : '' )
     uri = URI.parse(url)
 
     http = Net::HTTP.new(uri.host, uri.port)
