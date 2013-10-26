@@ -1,15 +1,1 @@
-.row
-  .span1 SQL
-  .span11
-    pre.prettyprint.js-sql
-      textarea.span10.js-sql-textarea
-      = link_to "Run Query", "#!",:class => "js-execute-query btn btn-primary"
-      |  
-      = link_to "Cancel", "#!", :class=> "js-sql-cancel"
-
-coffee:
-  $ ->
-
-    $('.js-execute-query').click -> 
-      sql = $('.js-sql-textarea').val()
-      $('.js-execute-query').attr "href", "/sql_share/dataset?url=/REST.svc/execute?sql=#{sql}&sample=false&auth=true"
+=render "/graphs/sql_field"

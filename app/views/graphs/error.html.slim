@@ -1,5 +1,9 @@
 .row
   .span12
-    .text-error=@status
-    -if @sql_share_error
-      pre.prettyprint=@sql_share_error
+    pre.prettyprint
+      .text-error=@status
+
+.row
+  .span12
+    h3 Try again?
+=render "/graphs/sql_field", :sql => params[:sql]

@@ -24,7 +24,7 @@ class SqlShareApiInterfacesController < ApplicationController
       @set = JSON.parse(set)
     rescue Exception => e
       @title = "SQLShare Error"
-      @sql_share_error = e.to_s
+      @status = e.to_s
       render error_graphs_path
       return
     end
