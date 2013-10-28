@@ -15,8 +15,9 @@ coffee:
           jsonData = $.parseJSON data.value
           $.each(jsonData, (i, val)-> 
             $html = $('<div class="row bordered">')
-            sample_link = "<a href=\"/sql_share/dataset?sql=SELECT TOP 100 * FROM (#{val.sql_code}) x\" target=\"_blank\">Top 100</a>"
-            full_link   = "<a href=\"/sql_share/dataset?sql=#{val.sql_code}\" target=\"_blank\">Full Set</a>"
+            sql = "SELECT * FROM #{val.qualified_name}"
+            sample_link = "<a href=\"/sql_share/dataset?sql=SELECT TOP 100 * FROM (#{sql}) x\" target=\"_blank\">Top 100</a>"
+            full_link   = "<a href=\"/sql_share/dataset?sql=#{sql}\" target=\"_blank\">Full Set</a>"
 
             api_key_warning = ""
             if val.is_public == false
