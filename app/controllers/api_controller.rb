@@ -16,7 +16,8 @@ class ApiController < ApplicationController
 
     x_axis = params[:x_axis]
 
-    axes = y_axes << x_axis
+    axes = y_axes 
+    y_axes << x_axis unless x_axis == "index"
     escaped_axes = ""
     axes.each do |axis|
       escaped_axes += "[#{axis}]"
@@ -85,7 +86,7 @@ class ApiController < ApplicationController
     ret_data = []
     y_axes.each do |y_axis|
       y_index = find_index col_names, y_axis
-      x_index = find_index col_names, x_axis
+      x_index = x_axis == "index" ? :index : find_index(col_names, x_axis)
 
       if y_index == false || x_index == false
         @error = []
@@ -101,7 +102,11 @@ class ApiController < ApplicationController
         if !x_axis
           col_data["values"] << {"x" => i, "y" => y_value }
         else
-          x_value = types[x_index] == "datetime" ? "new Date('#{datum[x_index]}').getTime()" : datum[x_index]
+          if x_index == :index
+            x_value = i
+          else
+            x_value = types[x_index] == "datetime" ? "new Date('#{datum[x_index]}').getTime()" : datum[x_index]
+          end
           col_data["values"] << {"x" => x_value, "y" => y_value}
         end
       end
