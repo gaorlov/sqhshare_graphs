@@ -17,7 +17,8 @@ class ApiController < ApplicationController
     x_axis = params[:x_axis]
 
     axes = y_axes 
-    y_axes << x_axis unless x_axis == "index"
+    axes << x_axis unless x_axis == "index"
+    
     escaped_axes = ""
     axes.each do |axis|
       escaped_axes += "[#{axis}]"
@@ -25,6 +26,14 @@ class ApiController < ApplicationController
     end
 
     sql = "SELECT #{escaped_axes} FROM (#{params[:sql]}) x"
+
+    if axes == []
+      @title = "That's silly; You can't have a graph with no data!"
+      @status = "you're asking for \"#{sql}\""
+      params[:sql] = sql
+      render error_graphs_path
+      return
+    end
 
     begin
       set = HttpHelper.http_get(HttpHelper::EXECUTE + URI.escape(sql))
@@ -102,9 +111,8 @@ class ApiController < ApplicationController
         if !x_axis
           col_data["values"] << {"x" => i, "y" => y_value }
         else
-          if x_index == :index
-            x_value = i
-          else
+          x_value = i
+          if x_index != :index
             x_value = types[x_index] == "datetime" ? "new Date('#{datum[x_index]}').getTime()" : datum[x_index]
           end
           col_data["values"] << {"x" => x_value, "y" => y_value}

@@ -12,8 +12,9 @@
         .span5
           .alert This dataset is large; it may take a while to render the graph.
   .span1 
-    | SQL 
-    =link_to 'Share', '#!', :class => "icon-external-link text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
+    div SQL 
+    div=link_to ' Share', '#!', :class => "icon-share text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
+    div=link_to '</> Embed', '#!', :class => "text-tiny js-show-embed", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
   .span11
     pre.prettyprint.js-sql.js-sql-edit.fake-link[data-toggle="tooltip" data-placement="top" title="Click to edit"]
       = @sql
@@ -93,7 +94,8 @@ hr
     #chart style="display:none"
       h2
         | Graph 
-        =link_to ' Share', '#!', :class => "icon-external-link text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
+        =link_to ' Share', '#!', :class => "icon-share text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
+        =link_to '</> Embed', '#!', :class => "text-tiny js-show-embed", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
       svg[style="height:#{@graph_height}px;"]
 
 #full-dataset
@@ -108,6 +110,7 @@ hr
       -@data.each do |col|
         .span1
           .row
+
             h5.span1.text-center=col["key"]
             -col["values"].each do |datum|
               .text-center.span1="#{datum == "" ? '--' : datum}"
@@ -227,8 +230,9 @@ coffee:
     # generate link from actions
     $('.js-x-axis-select, .js-y-axis-checkbox, .js-graph-type').change ->
       $(".js-show-link").attr "data-content", "<div>#{url_for_current_state(true)}#{url_for_current_state(true, true)}</div>"
-      $(".js-show-link").each -> 
+      $(".js-show-link, .js-show-embed").each -> 
         $(this).popover("hide");
+      $(".js-show-embed").attr "data-content", embed_code_for_current_state()
 
 
     url_for_current_state = (html_wrapped = false, whitelabel = false) -> 
@@ -257,9 +261,16 @@ coffee:
 
 
       if html_wrapped
-        return "<h5>#{title}</h5><textarea class='stripped-popover' type=\"text\" value=\"#{url}\" readonly=\"readonly\">#{url}</textarea>"
+        return "<h5>#{title}</h5><textarea class='stripped-popover' type=\"text\"z readonly=\"readonly\">#{url}</textarea>"
       else
         return url
 
+    embed_code_for_current_state = () ->
+      url = url_for_current_state(false, false)
+      html_wraped_url = "<iframe sandbox=\"allow-scripts\" seamless src=\"#{url}\" width=\"100%\" height=\"600px\">"
+      return "<textarea class='stripped-popover' type=\"text\" readonly=\"readonly\">#{html_wraped_url}</textarea>"
+
+
     $(".js-show-link").attr "data-content", "<div>#{url_for_current_state(true)}#{url_for_current_state(true, true)}</div>"
+    $(".js-show-embed").attr "data-content", embed_code_for_current_state()
 
