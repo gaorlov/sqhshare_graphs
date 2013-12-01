@@ -2,20 +2,23 @@
   -@graphs.each_slice(@columns) do |graphs|
     .row
       -graphs.each do |graph|
-        .box[class="span#{12/@columns}"]
-          pre
-            code.block
-              .line 
-                span.semibold sql
-                | = #{graph["sql"]}
-              .line 
-                span.semibold y_axes
-                | = #{graph["y_axes"].join(",")}
-              .line 
-                span.semibold x_axis
-                | = #{graph["x_axis"]}
+        .box[class="span#{12/@columns}"]        
           .js-kill-me.text-center=spinner
-          .js-graph[data-sql=graph["sql"] data-x-axis=graph["x_axis"] data-y-axes=graph["y_axes"].join(",") data-graph-type=graph["graph_type"] data-height=graph["height"]]
+          .js-graph.margin1[data-sql=graph["sql"] data-x-axis=graph["x_axis"] data-y-axes=graph["y_axes"].join(",") data-graph-type=graph["graph_type"] data-height=graph["height"]]
+          .margin1
+            =link_to "Show details", "#!", :class => "js-toggle-code "
+            =link_to "Hide details", "#!", :class => "js-toggle-code ", :style => "display:none"
+            pre.js-code style="display:none;"
+              code.block
+                .line 
+                  span.semibold sql
+                  | = #{graph["sql"]}
+                .line 
+                  span.semibold y_axes
+                  | = #{graph["y_axes"].join(",")}
+                .line 
+                  span.semibold x_axis
+                  | = #{graph["x_axis"]}
 
 -else
   .row
@@ -45,3 +48,7 @@ coffee:
         success: (data)->
           $this.html data
           $this.parents('.box').find('.js-kill-me').remove()
+
+    $('.js-toggle-code').click -> 
+      $parent = $(this).parents('.box')
+      $parent.find('.js-toggle-code, .js-code').toggle()
