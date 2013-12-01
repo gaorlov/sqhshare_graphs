@@ -1,0 +1,41 @@
+=form_for :graph, :url => {:controller => :bags, :action => :add_to_bag}, :remote => true, :html => {:id => "js-bag-selector"} do |f|
+  =f.label :name, "Bag name"
+  =f.select :name, options_for_select([])
+
+  =f.hidden_field :sql, :value => @sql.to_s
+  =f.hidden_field :y_axes
+  =f.hidden_field :x_axis
+  =f.hidden_field :graph_type
+  =f.hidden_field :height, :value => 400
+  =f.submit "Add to bag", :class => "btn"
+
+.js-bags-loading
+    =spinner
+
+coffee:
+  $ -> 
+    update_bags = () ->
+      $.ajax
+        url: '/bags/list.json'
+        beforeSend: () ->
+          $('#js-bag-selector').hide()
+          $('.js-bags-loading').show()
+        success: (data) ->
+          $('#js-bag-selector').show()
+          $('.js-bags-loading').hide()
+          options = ""
+          data.forEach (bag)->
+            options += "<option value=\"#{bag.name}\"> #{bag.name} <span class=\"muted\">[#{if bag.graphs then bag.graphs.length else 0}]</span></option>"
+          $("#graph_name").html(options)
+
+        error: () -> 
+          $('#js-bag-selector').html("<div class=\"muted\">Bags unvailable</div>")
+
+    update_bags()
+
+    $('#js-bag-selector input[type=submit]').click ->     
+      $('#js-bag-selector').hide()
+      $('.js-bags-loading').show()
+
+    $('body').on "ajax:success", '#js-bag-selector', (status, data, xhr) ->
+      update_bags()

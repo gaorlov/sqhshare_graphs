@@ -20,7 +20,7 @@ class SqlShareApiInterfacesController < ApplicationController
     set, @set = nil
 
     begin
-      set = HttpHelper.http_get(HttpHelper::EXECUTE + URI.escape(params[:sql]), true, @api_key)
+      set = HttpHelper.http_get(HttpHelper::EXECUTE + params[:sql], true, @api_key)
       @set = JSON.parse(set)
     rescue Exception => e
       @title = "SQLShare Error"

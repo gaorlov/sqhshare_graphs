@@ -12,7 +12,6 @@ class GraphsController < ApplicationController
   end
 
   def sample_bag # create its own controller when making the full thing
-
     id = params[:id]
 
     @title = "Graph Bag: Seaflow Visualizations"

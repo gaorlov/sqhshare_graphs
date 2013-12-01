@@ -1,0 +1,47 @@
+-if @graphs
+  -@graphs.each_slice(@columns) do |graphs|
+    .row
+      -graphs.each do |graph|
+        .box[class="span#{12/@columns}"]
+          pre
+            code.block
+              .line 
+                span.semibold sql
+                | = #{graph["sql"]}
+              .line 
+                span.semibold y_axes
+                | = #{graph["y_axes"].join(",")}
+              .line 
+                span.semibold x_axis
+                | = #{graph["x_axis"]}
+          .js-kill-me.text-center=spinner
+          .js-graph[data-sql=graph["sql"] data-x-axis=graph["x_axis"] data-y-axes=graph["y_axes"].join(",") data-graph-type=graph["graph_type"] data-height=graph["height"]]
+
+-else
+  .row
+    .alert.alert-info
+      | There are no graphs in this bag. 
+
+coffee:
+  $ -> 
+    $('.js-graph').each ->
+      $this = $(this)
+      sql = $(this).attr "data-sql"
+      x_axis = $(this).attr "data-x-axis"
+      y_axes = $(this).attr("data-y-axes").split(",")
+      graph_type = $(this).attr "data-graph-type"
+      height = $(this).attr "data-height"
+
+      request_data =  
+        sql: sql
+        x_axis: x_axis
+        y_axes: y_axes
+        graph_type: graph_type
+        height: height
+
+      $.ajax
+        url:"/api/dataset"
+        data: request_data
+        success: (data)->
+          $this.html data
+          $this.parents('.box').find('.js-kill-me').remove()

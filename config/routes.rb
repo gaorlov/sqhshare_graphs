@@ -3,7 +3,6 @@ SqlshareGraphs::Application.routes.draw do
   resources :graphs do
     collection do
       get 'error'
-      get 'sample_bag'
     end
   end
 
@@ -29,6 +28,14 @@ SqlshareGraphs::Application.routes.draw do
       get 'dataset'
     end
   end
+
+  resources :bags, :except => [:show] do
+    get 'whoami', on: :collection;
+    get 'list', on: :collection;
+    post 'add_to_bag', on: :collection;
+  end
+
+  get '/bags/:user_id/:id', to: 'bags#show'
 
   root :to => 'graphs#index'
 

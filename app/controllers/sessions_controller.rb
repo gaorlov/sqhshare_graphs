@@ -8,6 +8,7 @@ class SessionsController < ApplicationController
       render :json => {:status => 'failure', :error => "Key cannot be empty"}
     else
       session[:api_key] = params[:key][:api_key]
+      session[:user] = nil
       render :json => {:status => 'success', :value => {"api_key" => session[:api_key]}}
     end
   end

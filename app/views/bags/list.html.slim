@@ -1,0 +1,26 @@
+-new_graph_link = link_to "Click here", "#", :class => "semibold js-new-bag-link", :"data-toggle" => :popover, :"data-html" => true, :"data-title" => "New graph bag", :"data-content" => "#{render "new"}"
+
+-if @data == :no_bags
+  .js-no-bags.alert.alert-info
+    | Nothing here. #{new_graph_link} to make a new graph bag.
+-else
+  .row
+    - @data.each do |bag|
+      .span4
+        .alert
+          =link_to bag["name"], "/bags/#{@user}/#{bag["name"]}"
+          -if bag["graphs"]
+            -bag["graphs"].each do |graph|
+              .muted #{graph["sql"].truncate(90)}
+              .muted 
+                | [x: #{graph["x_axis"].truncate(20)}, y: #{raw(graph["y_axes"]).truncate(30)}]
+              hr
+          -else
+            .muted [Empty bag]
+
+  .row
+    .span12 #{new_graph_link} to make a new graph bag.
+
+coffee:
+  $ -> 
+    $(".js-new-bag-link").popover()

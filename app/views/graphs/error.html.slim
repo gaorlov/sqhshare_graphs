@@ -1,9 +1,11 @@
+-@hide_sql ||= false
 .row
   .span12
     pre.prettyprint
       .text-error=@status
 
-.row
-  .span12
-    h3 Try again?
-=render "/graphs/sql_field", :sql => params[:sql]
+-unless @hide_sql
+  .row
+    .span12
+      h3 Try again?
+  =render "/graphs/sql_field", :sql => params[:sql]

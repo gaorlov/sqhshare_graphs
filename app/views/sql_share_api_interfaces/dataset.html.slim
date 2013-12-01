@@ -97,6 +97,7 @@ hr
         =link_to ' Share', '#!', :class => "icon-share text-tiny js-show-link", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
         =link_to '</> Embed', '#!', :class => "text-tiny js-show-embed", :"data-toggle"=>"popover", :"data-placement"=>"bottom", :"data-content"=>"", :"data-original-title"=>"Link to this graph", :"data-html" => "true"
       svg[style="height:#{@graph_height}px;"]
+      =render "bag_selection"
 
 #full-dataset
   .row
@@ -185,7 +186,7 @@ coffee:
 
     $('.js-new-graph').click ->
       sql = $('.js-sql-textarea').val()
-      $('.js-new-graph').attr "href", "/sql_share/dataset?url=/REST.svc/execute?sql=#{sql}&sample=false&auth=true"
+      $('.js-new-graph').attr "href", "/sql_share/dataset?sql=#{sql}&sample=false&auth=true"
 
     $('.js-graph-type').change -> 
       if $('.js-graph-type option:selected').data("log-enabled")
@@ -233,14 +234,10 @@ coffee:
       $(".js-show-link, .js-show-embed").each -> 
         $(this).popover("hide");
       $(".js-show-embed").attr "data-content", embed_code_for_current_state()
+      update_bag_form_fields();
 
-
-    url_for_current_state = (html_wrapped = false, whitelabel = false) -> 
-      y_axes = ""
-      $(".js-y-axis-checkbox:checked").each ->
-        y_axes += "\"#{$(this).attr 'data-y-index'}\","
-
-      graph = switch $('.js-graph-type').val()
+    get_graph_type = () -> 
+      switch $('.js-graph-type').val()
                 when "Scatter Plot"
                   "scatter"
                 when "Line Chart With Zoom"
@@ -249,6 +246,22 @@ coffee:
                   "line"
                 when "Bar Chart"
                   "bar"
+
+    update_bag_form_fields = () -> 
+      y_axes = ""
+      $(".js-y-axis-checkbox:checked").each ->
+        y_axes += $(this).attr 'data-y-index'
+        y_axes += ","
+      $('#graph_x_axis').val($('.js-x-axis-select').val())
+      $('#graph_y_axes').val(y_axes)
+      $('#graph_graph_type').val(get_graph_type())
+
+    url_for_current_state = (html_wrapped = false, whitelabel = false) -> 
+      y_axes = ""
+      $(".js-y-axis-checkbox:checked").each ->
+        y_axes += "\"#{$(this).attr 'data-y-index'}\","
+
+      graph = get_graph_type()
       title = ""
       url = ""
 
@@ -273,4 +286,4 @@ coffee:
 
     $(".js-show-link").attr "data-content", "<div>#{url_for_current_state(true)}#{url_for_current_state(true, true)}</div>"
     $(".js-show-embed").attr "data-content", embed_code_for_current_state()
-
+    update_bag_form_fields()

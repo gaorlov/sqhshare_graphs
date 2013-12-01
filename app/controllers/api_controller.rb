@@ -36,10 +36,11 @@ class ApiController < ApplicationController
     end
 
     begin
-      set = HttpHelper.http_get(HttpHelper::EXECUTE + URI.escape(sql))
+      set = HttpHelper.http_get(HttpHelper::EXECUTE + sql)
       set = JSON.parse(set)
     rescue Exception => e
       @title = "SQL Error"
+      @status = format_exception e
       render error_graphs_path
       return
     end

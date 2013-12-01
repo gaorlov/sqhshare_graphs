@@ -1,0 +1,61 @@
+.row
+  .span12
+    .js-error.alert.alert-error style="display:none"
+    -unless @api_key
+      .js-credentials
+        .alert
+          | You don't have an API key entered. Please do that in order to activate bag functionality.
+        =render "/layouts/components/credentials"
+    .js-user-info[style="#{'display:none' unless @user}"]
+      h3
+        | bags for 
+        span.js-user-email.semibold=' @user
+      .muted If this is not you, verify your API key. You can also change it #{link_to "here", sessions_path}
+.row
+  .span12
+    .js-bags[style="#{'display:none' unless @user}"]
+      .text-center
+        p=spinner
+        p Loading bags
+
+
+
+javascript:
+  window.user_info = "#{@user}"
+coffee:
+  $ ->
+    get_bags = () ->
+      $.ajax
+        url: '/bags/list'
+        success: (data, status, XHR) ->
+          $('.js-bags').html(data)
+          
+
+    get_user_info = () ->
+      $.ajax
+        url: '/bags/whoami'
+        success: (data, status, XHR) ->
+          if data.status == "success"
+            $('.js-user-info').show()
+            $('.js-user-email').html(" #{data.data}")
+            $('.js-bags').slideDown()
+            get_bags()
+          else
+            $('.js-error').show().html "Er. This isn't great: \"#{data.error}\". If this makes no sense to you, tell the admin"
+
+        error: (XHR, status, error) -> 
+          $('.js-error').show().html "Something went wrong with the request. Tell the admin, \"status: #{XHR.status}, statusText: #{status}, error: #{error}\""
+
+    $('body').on "ajax:success", '#new-api-key', (status, data, xhr) ->
+      $('.js-credentials').slideUp ->
+        $(this).remove()
+      get_user_info()
+
+    if $('js-credentials').length == 0 && window.user_info == undefined
+      get_user_info()
+    else
+      get_bags()
+
+    $('body').on "ajax:success", '#js-new-bag-form', (status, data, xhr) ->
+      location.reload()
+      

@@ -31,6 +31,9 @@ body{
   h5{font-size: 15px;}
   font-size: 12px;
 }
+.semibold{
+  font-weight: 600;
+}
 
 .full-width{
   width: 100%;
@@ -78,4 +81,7 @@ body > .container{
   & > *{
     margin: 0 12px;
   }
+}
+code.block{
+  display: block;
 }

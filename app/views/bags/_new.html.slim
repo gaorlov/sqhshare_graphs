@@ -1,0 +1,5 @@
+=form_for :bag, :method => :post, :remote => true, :url => {:action => :create}, :html => {:id => "js-new-bag-form"} do |f|
+  =f.label :name, "Bag name"
+  =f.text_field :name
+  =f.submit "Create Bag", :class => "btn btn-primary"
+  

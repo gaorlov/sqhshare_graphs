@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include BagsHelper
+  
   def primary_link_to text, link_path, link_options = {}, alternate_paths = []
     active = link_path == request.fullpath
     if !active
@@ -14,5 +16,9 @@ module ApplicationHelper
 
   def spinner
     content_tag( :img, '', :src => "/assets/spinner.gif", :class => 'spinner')
+  end
+
+  def format_exception e
+    "Exception: #{e.to_s}\n\n#{e.backtrace.join("\n")}"
   end
 end

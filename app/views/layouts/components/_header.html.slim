@@ -5,7 +5,8 @@ header
         .row
           =primary_link_to "Visualize Data Sets", graphs_path
           =primary_link_to "New Query", new_graph_path
-          =primary_link_to raw("API Key#{session[:api_key] ? " <span class=\"icon-ok-sign\"/>" : ''}"), sessions_path
+          =primary_link_to raw("API Key#{session[:api_key] ? " <span class=\"icon-ok-sign\"/>" : ''}"), sessions_path, {:class => 'js-header-api-key-nav-button'}
+          =primary_link_to "Bags", bags_path
           .pull-right
             - link_text = raw "Source #{image_tag 'GitHub-Mark-64px.png', :class => 'gitgub-logo'}"
             =primary_link_to link_text, 'https://github.com/gaorlov/sqhshare_graphs', "data-toggle" => "tooltip", "data-placement"=>"bottom", "data-original-title" => "View cource on GitHub", :target => '_blank'

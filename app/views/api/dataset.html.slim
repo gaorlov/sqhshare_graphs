@@ -24,7 +24,6 @@ javascript:
       d3.select("##{id} svg").datum(chart_data).transition().duration(500).call(chart);
       nv.utils.windowResize(chart.update);
 
-      console.log("##{id} done")
       return chart;
     });
   });
