@@ -1,6 +1,4 @@
 class SqlShareApiInterfacesController < ApplicationController
-  require 'pp'
-
   def dataset_list
     render :json => {:status => 'success', :value => HttpHelper.http_get(HttpHelper::DATASET_LIST) }
   end
@@ -29,9 +27,9 @@ class SqlShareApiInterfacesController < ApplicationController
       return
     end
 
-    @status = @set["Message from SQLShare"] if @set["Message from SQLShare"]
+    @status = @set["Detail"] if @set["Detail"]
 
-    if @set["Message from SQLShare"] || !@set
+    if @set["Detail"] || !@set
       @title = "Oh noes! You can haz error! : ("
       render error_graphs_path
       return

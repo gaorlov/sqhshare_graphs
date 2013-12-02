@@ -15,8 +15,9 @@ class BagsController < ApplicationController
 
   def show
     @title = "Bag '#{params[:id]}'"
-    bag  = get_bag params[:id], false, params[:user_id]
-    @graphs = bag["graphs"]
+    @bag  = get_bag params[:id], false, params[:user_id]
+    @owner = @user == params[:user_id]
+    @graphs = @bag["graphs"]
     @columns = @graphs.count == 1 ? 1 : 2 if @graphs
   end
 
@@ -84,6 +85,13 @@ class BagsController < ApplicationController
     graph[:graph_type] = params[:graph][:graph_type]
     graph[:height] = params[:graph][:height]
     bag["graphs"] << graph
+    data = create_update_bag bag
+    render :json => data
+  end
+
+  def remove_from_bag
+    bag  = get_bag params[:name]
+    bag["graphs"].delete_at(params[:index].to_i)
     data = create_update_bag bag
     render :json => data
   end

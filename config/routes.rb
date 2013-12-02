@@ -33,6 +33,7 @@ SqlshareGraphs::Application.routes.draw do
     get 'whoami', on: :collection;
     get 'list', on: :collection;
     post 'add_to_bag', on: :collection;
+    get 'remove_from_bag', on: :collection;
   end
 
   get '/bags/:user_id/:id', to: 'bags#show'

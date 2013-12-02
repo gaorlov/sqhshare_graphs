@@ -1,8 +1,18 @@
 -if @graphs
-  -@graphs.each_slice(@columns) do |graphs|
-    .row
+  - i = 0
+  .row
+    -@graphs.each_slice(@columns) do |graphs|
       -graphs.each do |graph|
-        .box[class="span#{12/@columns}"]        
+        .box[class="span#{12/@columns}"]
+          -if @owner
+            =link_to "", "#!", :class => "pull-right icon-remove js-remove-graph-from-bag", :"data-index" => i, :"data-toggle" => :tooltip, :"data-original-title" => "Remove graph from bag."
+
+            .js-spinner style="display:none"
+              .text-center
+                p=spinner
+                p Removing graph from bag
+            .js-error.alert.alert-error style="display:none"
+
           .js-kill-me.text-center=spinner
           .js-graph.margin1[data-sql=graph["sql"] data-x-axis=graph["x_axis"] data-y-axes=graph["y_axes"].join(",") data-graph-type=graph["graph_type"] data-height=graph["height"]]
           .margin1
@@ -19,11 +29,15 @@
                 .line 
                   span.semibold x_axis
                   | = #{graph["x_axis"]}
-
+        -i += 1
+        
 -else
   .row
     .alert.alert-info
       | There are no graphs in this bag. 
+
+javascript:
+  window.bag_name = "#{@bag["name"]}"
 
 coffee:
   $ -> 
@@ -52,3 +66,20 @@ coffee:
     $('.js-toggle-code').click -> 
       $parent = $(this).parents('.box')
       $parent.find('.js-toggle-code, .js-code').toggle()
+
+    $('.js-remove-graph-from-bag').tooltip()
+
+    $('.js-remove-graph-from-bag').click -> 
+      $parent = $(this).parents('.box')
+      $parent.find('>*').hide()
+      $parent.find('.js-spinner').show()
+
+      index = $(this).attr 'data-index'
+      $.ajax
+        url: "/bags/remove_from_bag"
+        data: {"index": index, "name": window.bag_name }
+        success: (data) ->
+          $parent.remove()
+        error: (XHR) -> 
+          $parent.find('.js-spinner').hide()
+          $parent.find('.js-error').show().html("Failed to remove graph. Please try again later.")
