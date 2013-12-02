@@ -16,7 +16,7 @@ class ApiController < ApplicationController
 
     x_axis = params[:x_axis]
 
-    axes = y_axes 
+    axes = Array.new(y_axes)
     axes << x_axis unless x_axis == "index"
     
     escaped_axes = ""
